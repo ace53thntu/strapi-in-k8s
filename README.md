@@ -40,6 +40,32 @@ CREATE USER strapi_mystrapiapp WITH PASSWORD 'generated_pass';
 CREATE DATABASE strapi_mystrapiapp OWNER strapi_mystrapiapp;
 ```
 
+### Strapi database settings
+
+In `config/environments/production/database.json` set `client` to `postgres` and add `"ssl": true`
+
+```json
+{
+  "defaultConnection": "default",
+  "connections": {
+    "default": {
+      "connector": "bookshelf",
+      "settings": {
+        "client": "postgres",
+        "host": "${process.env.DATABASE_HOST || '127.0.0.1'}",
+        "port": "${process.env.DATABASE_PORT || 27017}",
+        "database": "${process.env.DATABASE_NAME || 'strapi'}",
+        "username": "${process.env.DATABASE_USERNAME || ''}",
+        "password": "${process.env.DATABASE_PASSWORD || ''}",
+        "ssl": true
+      },
+      "options": {}
+    }
+  }
+}
+```
+
+
 ## Persistent volume claim
 
 ```sh
