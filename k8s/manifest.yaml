@@ -1,0 +1,83 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: strapi-mystrapiapp
+  namespace: default
+spec:
+  tls:
+  - hosts:
+    - api.mystrapiapp.net
+    secretName: tls-api.mystrapiapp.net
+  rules:
+  - host: api.mystrapiapp.net
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: strapi-mystrapiapp
+          servicePort: 1337
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strapi-mystrapiapp
+  labels:
+    app: strapi-mystrapiapp
+spec:
+  ports:
+  - port: 1337
+    targetPort: 1337
+  selector:
+    app: strapi-mystrapiapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strapi-mystrapiapp
+  labels:
+    app: strapi-mystrapiapp
+spec:
+  selector:
+    matchLabels:
+      app: strapi-mystrapiapp
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: strapi-mystrapiapp
+    spec:
+      nodeSelector:
+        # @custom: provide a node label if you wish to specify the nodes your
+        # strapi app would run on
+        strapi_mystrapiapp_pods_node: "true"
+      containers:
+      - name: strapi-mystrapiapp
+        image: strapi/base
+        ports:
+        - containerPort: 1337
+        env:
+          - name: NODE_ENV
+            value: "production"
+          - name: DATABASE_HOST
+            # @custom: postgres service name and namespace
+            value: "my-postgres-cluster.default"
+          - name: DATABASE_PORT
+            value: "5432"
+          - name: DATABASE_NAME
+            value: "strapi_mystrapiapp"
+          - name: DATABASE_USERNAME
+            value: "strapi_mystrapiapp"
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: strapi-mystrapiapp
+                key: db_password            
+        volumeMounts:
+        - name: strapi-mystrapiapp
+          mountPath: /strapi
+        workingDir: /strapi/mystrapiapp
+        command: ["yarn", "start"]
+      volumes:
+      - name: strapi-mystrapiapp
+        persistentVolumeClaim:
+          claimName: strapi-mystrapiapp

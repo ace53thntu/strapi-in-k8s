@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: strapi-mystrapiapp
+  labels:
+    app: strapi-mystrapiapp
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      # @custom: set storage capacity
+      storage: 1Gi

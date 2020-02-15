@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: api.mystrapiapp.net
+  namespace: default
+spec:
+  secretName: tls-api.mystrapiapp.net
+  issuerRef:
+    # @custom: provide the certificate issuer here
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+  - api.mystrapiapp.net
